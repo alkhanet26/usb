@@ -1,27 +1,19 @@
 #!/bin/bash
 # This Script by ALK-NET
 
-ipx=$(ip route | grep via | cut -d' ' -f3)
 id=$(usbreset | grep ID | cut -d' ' -f7)
 prod=$(usbreset | grep ID | cut -d' ' -f9)
+bug=$1
+tgl=$(date)
+dc=$(httping -c 1 ${bug} | grep connected | cut -d= -f3 | grep -c ms)
 
-echo -e "Cek Koneksi Internet : "${ipx} ${prod}
-logger "Cek Koneksi Internet : "${ipx} ${prod}
-	ping -c 5 ${ipx} | grep round-trip > /tmp/cping
-	
-	pms=$(ping -c 5 ${ipx} | grep round-trip | cut -d/ -f4)
-	msa=$(ping -c 5 ${ipx} | grep round-trip | grep -o ms)
-	
-if [ $msa = "ms" ]; then	
-	echo -e "Ip Modem : "${ipx}
-	logger "Ip Modem : "${ipx}
-	echo -e "ping : "${pms} ${msa}
-	logger "ping : "${pms} ${msa}
-
+if [[ $dc = "1" ]]; then
+   echo -e "Connected"
 else
-	echo -e "Mereset Koneksi USB Modem : "$prod
-	logger "Mereset Koneksi USB Modem : "$prod
-	sleep 3
-	usbreset $id
+   echo -e "No Internet"
+   echo -e "Mereset Koneksi USB Modem : "$prod
+   logger "Mereset Koneksi USB Modem : "$prod
+   sleep 3
+   usbreset $id
 fi	
 
